@@ -12,23 +12,26 @@ class Geocoder:
         params = {'q': address,
                   'format': 'geojson',
                   }
-        response = requests.get(url=self.base_url, params=params)
-        print("\nHTTP GET request to URL: \n" + str(response.url)
-              + " \n Status Code : " + str(response.status_code))
+        coded_response = requests.get(url=self.base_url, params=params)
+        print("\nHTTP GET request to URL: \n" + str(coded_response.url)
+              + " \n Status Code : " + str(coded_response.status_code))
 
-        if response.status_code == 200:
-            return response
+        if coded_response.status_code == 200:
+            return coded_response
         else:
             return None
 
-    def parse(self, response):
-        pass
+    def parse(self, res_in_json):
+        print(json.dumps(res_in_json, indent=2))
 
-    def run(self):
-        self.fetch('Beaumont, Pindo Cir')
+    def run(self, input_address):
+        # WE need the response in json format
+        res_in_json = self.fetch(input_address).json()
+        # print(res_in_json)
+        self.parse(res_in_json)
 
 
 # main driver
 if __name__ == '__main__':
     geocoder = Geocoder()
-    geocoder.run()
+    geocoder.run(input_address=input("Type address\n"))
