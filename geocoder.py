@@ -4,22 +4,6 @@ import requests
 import json
 
 
-def address_list(input_file):
-
-    addresses = ''
-    # fetch from a file
-    with open(input_file, 'r') as f:
-        for line in f.read():
-            addresses += line
-    # print(addresses)
-    # convert addresses into list
-    addresses = addresses.split('\n')
-
-    # print(addresses)
-
-    return addresses
-
-
 class Geocoder:
     # base URL
     base_url = 'https://nominatim.openstreetmap.org/search'
@@ -38,6 +22,21 @@ class Geocoder:
         else:
             return None
 
+    def address_list(self, input_file):
+
+        addresses = ''
+        # fetch from a file
+        with open(input_file, 'r') as f:
+            for line in f.read():
+                addresses += line
+        # print(addresses)
+        # convert addresses into list
+        addresses = addresses.split('\n')
+
+        # print(addresses)
+
+        return addresses
+
     def parse(self, response_in_json):
         try:
             display_address = json.dumps(response_in_json["features"][0]["properties"]["display_name"], indent=2).replace('\"', '')
@@ -55,7 +54,7 @@ class Geocoder:
 
     def run(self, input_file):
         # collect the address from the input file
-        addresses = address_list(input_file)
+        addresses = self.address_list(input_file)
         for address in addresses:
 
             # collect response in json format
