@@ -7,6 +7,8 @@ import json
 class Geocoder:
     # base URL
     base_url = 'https://nominatim.openstreetmap.org/search'
+    # results
+    results = []
 
     def fetch(self, address):
         # String query parameters
@@ -29,12 +31,9 @@ class Geocoder:
         with open(input_file, 'r') as f:
             for line in f.read():
                 addresses += line
-        # print(addresses)
+
         # convert addresses into list
         addresses = addresses.split('\n')
-
-        # print(addresses)
-
         return addresses
 
     def parse(self, response_in_json):
@@ -47,10 +46,17 @@ class Geocoder:
                 'Address': display_address,
                 'Coordinates': coordinates,
             }
-            print(json.dumps(items, indent=2))
+
+            # Append it to the results
+            self.results.append(items)
+            print(json.dumps(self.results, indent=2))
 
         except:
             pass
+
+    def store_results(self):
+        with open('results.json', 'w') as f:
+            f.write(json.dumps(self.results, indent=2))
 
     def run(self, input_file):
         # collect the address from the input file
@@ -65,6 +71,8 @@ class Geocoder:
             # adhere nominatim policy
             time.sleep(2)
 
+            self.store_results()
+
     # Single Address search
         # WE need the response in json format
         # res_in_json = self.fetch(input_address).json()
@@ -72,7 +80,9 @@ class Geocoder:
         # self.parse(res_in_json)
 
 
+
 # main driver
 if __name__ == '__main__':
     geocoder = Geocoder()
     geocoder.run(input_file="address.txt")
+
