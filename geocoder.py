@@ -4,6 +4,22 @@ import requests
 import json
 
 
+def address_list(input_file):
+
+    addresses = ''
+    # fetch from a file
+    with open(input_file, 'r') as f:
+        for line in f.read():
+            addresses += line
+    # print(addresses)
+    # convert addresses into list
+    addresses = addresses.split('\n')
+
+    # print(addresses)
+
+    return addresses
+
+
 class Geocoder:
     # base URL
     base_url = 'https://nominatim.openstreetmap.org/search'
@@ -22,29 +38,29 @@ class Geocoder:
         else:
             return None
 
-
-    def address_list(self, input_file):
-
-        addresses = ''
-        # fetch from a file
-        with open(input_file, 'r') as f:
-            for line in f.read():
-                addresses += line
-        print(addresses)
-        # convert addresses into list
-        addresses = addresses.split('\n')
-        print(addresses)
-
-        return addresses
-
     def parse(self, response_in_json):
-        print(json.dumps(response_in_json, indent=2))
+        try:
+            display_address = json.dumps(response_in_json["features"][0]["properties"]["display_name"], indent=2).replace('\"', '')
+            coordinates = json.dumps(response_in_json["features"][0]["geometry"]["coordinates"], indent=2)\
+                .replace('\n', '').replace('[', '').replace(']', '').replace('  ', '').replace(',', ', ')
+
+            items = {
+                'Address': display_address,
+                'Coordinates': coordinates,
+            }
+            print(json.dumps(items, indent=2))
+
+        except:
+            pass
 
     def run(self, input_file):
-        # collect the address from the input fil
-        addresses = self.address_list(input_file)
+        # collect the address from the input file
+        addresses = address_list(input_file)
         for address in addresses:
+
+            # collect response in json format
             res = self.fetch(address).json()
+            # print(address)
             self.parse(response_in_json=res)
 
             # adhere nominatim policy
@@ -57,11 +73,7 @@ class Geocoder:
         # self.parse(res_in_json)
 
 
-
-
-
-
 # main driver
 if __name__ == '__main__':
     geocoder = Geocoder()
-    geocoder.run(input_file=input("Type filename\n"))
+    geocoder.run(input_file="address.txt")
